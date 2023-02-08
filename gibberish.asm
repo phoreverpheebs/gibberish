@@ -10,7 +10,7 @@ len equ $-_start
 	lahf
 	jg $+1
 db 0xc1
-	ror eax, 7
+	rol eax, 0x19
 	or edx, len-pro_len
 	lea ebx, [_start+pro_len]
 	xchg ecx, ebx
@@ -18,12 +18,12 @@ db 0xc1
 	cmp cl, 0x80
 	jnl $-4
 	jne $-0x6f
-	retn 0x8366
-	rol dl, here
+	retn 0xc283
+db $-_start-pro_len+4
+	push edx
 	ret
-here equ $-_start-pro_len+1
 	blsmsk eax, eax
 	and eax, 0x1
 	xor ebx, ebx
-	syscall
+	int 0x80
 
