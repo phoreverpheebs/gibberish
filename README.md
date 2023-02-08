@@ -34,9 +34,12 @@ over `nexti`, since this allows you to step into `call` instructions which is us
 
 ## Lines
 
-- [1 - 3](#1-to-3)
-- [4 - 6](#4-to-6)
-- [10 - 13](#10-to-13)
+- [1 to 3](#1-to-3)
+- [4 to 6](#4-to-6)
+- [10 to 13](#10-to-13)
+- [14 to 16](#14-to-16)
+- [17 to 24](#17-to-24)
+- [25 to 28](#25-to-28)
 
 ## 1 to 3
 
@@ -276,6 +279,12 @@ to pop from the stack after returning. To avoid instruction realignment, we set 
 instructions to be the 16-bit operand. We increment `edx` to the address of the exit, by adding the
 amount of bytes between the initial `call` location and the `blsmsk` instruction (start of exit)
 and then `push edx`, to return it back to the stack for a final `ret`.
+
+### Summary
+
+We execute the `sys_write` syscall and modify the return address at the top of the stack, by popping
+it off the stack into `edx`, incrementing it to be the address of the exit, then pushing it
+back onto the stack and returning.
 
 ## 25 to 28
 
