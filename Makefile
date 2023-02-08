@@ -1,10 +1,12 @@
+FILENAME = gibberish
 
-gibberish: gibberish.o
-	ld -melf_i386 gibberish.o -o gibberish
+gibberish: ${FILENAME}.o
+	ld -melf_i386 ${FILENAME}.o -o ${FILENAME}
 
-gibberish.o: gibberish.asm
-	nasm -felf32 gibberish.asm -o gibberish.o
+gibberish.o: ${FILENAME}.asm
+	nasm -felf32 ${FILENAME}.asm -o ${FILENAME}.o
 
 .PHONY: clean
-clean: *.o
+clean:
 	rm -f *.o
+

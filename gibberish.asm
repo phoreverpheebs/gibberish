@@ -10,7 +10,7 @@ len equ $-_start
 	lahf
 	jg $+1
 db 0xc1
-	ror eax, 7			; INTERRUPT flag should be set
+	ror eax, 7
 	or edx, len-pro_len
 	lea ebx, [_start+pro_len]
 	xchg ecx, ebx
@@ -26,3 +26,4 @@ here equ $-_start-pro_len+1
 	and eax, 0x1
 	xor ebx, ebx
 	syscall
+
