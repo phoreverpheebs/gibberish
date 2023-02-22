@@ -19,7 +19,7 @@ _start:
 	add [ecx-0xf], edi
 
 	nop dword [eax]
-	jmp $+0x26
+	jnp $+0x26
 
 ; print procedure:
 	bts eax, 0 				; stores eax[0] in CF and sets it
