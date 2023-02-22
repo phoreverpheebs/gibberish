@@ -1,12 +1,16 @@
 section .text
 global _start
-_start:
-	dec eax ; capital H for string
-	xchg esi, eax
-	and esi, $+len-1
+
+	clflush [0xe6819648]
+dd _start+8
 	jmp $+1
 	salc
-len equ $-_start
+_start:
+	call _start-11
+	lmsw [eax+0x0c87c18f]
+	and al, 0x80
+	loopz $-0xf
+	; add [esp], 
 
 ; the idea is to have a print that takes an address in ecx
 ; and prints one byte. This proc shouldn't be called, but 
@@ -22,7 +26,7 @@ len equ $-_start
 	js $-7					; if sign is set it jumps back, where eax[0] will be set (the underflow)
 	lahf					; the PF and CF are set and eFLAGS[1] is always set on x86 (ah == 70)
 	jz $+3					; offset into the second operand of the following subtraction
-	sub al, 0xd5			; 0xd5 (aad) uses the 0x96 (xchg r32, eax)
+	sub al, 0xd5			; 0xd5 (aad) uses the 0x96 (xchg r32, eax) -> also comma for (0x2c)
 	xchg esi, eax 			; overflow ah (70 * 150) % 256 == 4 where [0x96 == 150]
 	jge $+5					; jump into operand of lidt
 	lidt [ebx+0xd282f999]	; sign bit of eax is not set, therefore edx is set to 0 with cdq (0x99)
@@ -32,22 +36,29 @@ len equ $-_start
 							; yields 0x6c (the character 'l')
 	add byte [edi], cl
 	mov dh, 0x1d		; zero extension move 01 into ebx from the lidt opcode
-dd $-0xa
+dd $-10
 	int 0x80			; syscall
 	; XXX the offset here depends on the address above, so refer to this later
-	ret
+	; ret
+
+; the exit proc will/should be called after the print of '!',
+; returning a code of 1 for the amount of bytes written, therefore
+; eax setup for sys_exit is done, leaving clearing ebx and
+; calling the syscall, though ebx will be 1 so just unset that bit
+
+; exit procedure:
+	btc ebx, 0
+	syscall
 
 ; index:
 ; rul = ruled out
 ; pao = pass as operand (implicit 'rul')
 
 ; one-byte opcodes:
-; dec eax    			(48) H | cause underflow, filling eax ?
 ; gs override			(65) e
 ; ins m8, dx 			(6c) l | pao
 ; ins m8, dx 			(6c) l | pao
 ; outs 					(6f) o | pao
-; sub al, imm8  		(2c) ,
 ; and r/m8, r8  		(20)
 ; push edi      		(57) W
 ; outs m16/32			(6f) o | pao
