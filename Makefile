@@ -1,7 +1,7 @@
 FILENAME = gibberish
 
 gibberish: ${FILENAME}.o
-	ld -melf_i386 ${FILENAME}.o -o ${FILENAME}
+	ld --nmagic -melf_i386 ${FILENAME}.o -o ${FILENAME}
 
 gibberish.o: ${FILENAME}.asm
 	nasm -felf32 ${FILENAME}.asm -o ${FILENAME}.o
