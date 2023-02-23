@@ -16,10 +16,10 @@ _start:
 	rcl dword [eax+0x80900504], 0xc3
 	db 0x0a, 0xf6 ; or dh, dh | we have to write it explicitly
 	jecxz $+6
-	add [ecx-0xf], edi
+	add [ecx-0xf], edi 		; XXX remove an add
 
 	nop dword [eax]
-	jnp $+0x26
+	jnp $+0x27
 
 ; print procedure:
 	bts eax, 0 				; stores eax[0] in CF and sets it
@@ -35,14 +35,18 @@ _start:
 	lidt [ebx+0xd282f999]	; sign bit of eax is not set, therefore edx is set to 0 with cdq (0x99)
 							; CF is unset now so we force it to be set with stc (0xf9)
 							; (0x00d282) edx + 0 + CF == 0 + 0 + CF == 1
-	add byte [edi], cl
-	mov dh, 0x1d		; zero extension move 01 into ebx from the lidt opcode
+	add byte [edi], cl 		; XXX remove an add
+	mov dh, 0x1d			; zero extension move 01 into ebx from the lidt opcode
 dd $-10
-	int 0x80			; syscall
-	; XXX the offset here depends on the address above, so refer to this later
+	int 0x80				; syscall
+							; XXX the offset here depends on the address above, so refer to this later
 	ret
 
-	call $-0x24
+	push 0xffffd6e8
+	inc dword [ecx+0x41]
+	; double increment ecx to address of byte 0x74, which we can push onto stack
+	; using a dereferenced push r/m8. then we can subtract two from this value
+	; to get 0x72 needed for 'r' in the string.
 
 ; the exit proc will/should be called after the print of '!',
 ; returning a code of 1 for the amount of bytes written, therefore
@@ -58,25 +62,19 @@ dd $-10
 ; pao = pass as operand (implicit 'rul')
 
 ; one-byte opcodes:
-; gs override			(65) e
-; ins m8, dx 			(6c) l | pao
 ; ins m8, dx 			(6c) l | pao
 ; outs 					(6f) o | pao
 ; and r/m8, r8  		(20)
 ; push edi      		(57) W
 ; outs m16/32			(6f) o | pao
 ; jb rel8				(72) r | we can get this from `not` opcode using AND 0b01110010
-; ins m8, dx 			(6c) l | pao
 ; fs override   		(64) d
 ; and r/m16/32, r16/32 	(21) !
 ; or r8, r/m8			(0a) \n
 
 ; two-byte opcodes:
-; cmovs r16/32, r/m16/32 		(0f 48)
-; pcmpgtw mm, mm/m64			(0f 65)
 ; punpcklqdq xmm, xmm/m128 		(0f 6c)
 ; movq mm, mm/m64				(0f 6f)
-; cvttps2pi mm, xmm/m64			(0f 2c)
 ; mov r32, cr	  				(0f 20) | rul
 ; xorps xmm, xmm/m128			(0f 57)
 ; psrld|psrad|pslld xmm, imm8	(0f 72)
