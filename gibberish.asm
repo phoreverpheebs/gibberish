@@ -12,11 +12,12 @@ _start:
 	loopz $-0xf ; AND ecx with 0xef to unset ecx[4]
 
 	jp $+3
-	test dword [eax+0xeb1d2404], 0x01efbe16 ; add onto return address and jump to print
-	rcl dword [eax+0x80900504], 0xc3
-	db 0x0a, 0xf6 ; or dh, dh | we have to write it explicitly
-	jecxz $+6
-	add [ecx-0xf], edi 		; XXX remove an add
+	test dword [eax+0xeb1d2404], 0x01efbe15 ; add onto return address and jump to print
+	rcl dword [eax+0x80900e04], 0xc3
+	db 0x0b, 0xf6 ; or dh, dh | we have to write it explicitly
+	jecxz $+0x2e
+	db 0x71, 0x79
+	int1
 
 	nop dword [eax]
 	jnp $+0x27
@@ -35,7 +36,7 @@ _start:
 	lidt [ebx+0xd282f999]	; sign bit of eax is not set, therefore edx is set to 0 with cdq (0x99)
 							; CF is unset now so we force it to be set with stc (0xf9)
 							; (0x00d282) edx + 0 + CF == 0 + 0 + CF == 1
-	add byte [edi], cl 		; XXX remove an add
+	add byte [edi], cl
 	mov dh, 0x1d			; zero extension move 01 into ebx from the lidt opcode
 dd $-10
 	int 0x80				; syscall
