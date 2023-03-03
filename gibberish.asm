@@ -31,23 +31,36 @@ _start:
 	gs lahf					; the PF and CF are set and eFLAGS[1] is always set on x86 (ah == 70)
 	jz $+3					; offset into the second operand of the following subtraction
 	sub al, 0xd5			; 0xd5 (aad) uses the 0x96 (xchg r32, eax) -> also comma for (0x2c)
-	xchg esi, eax 			; overflow ah (70 * 150) % 256 == 4 where [0x96 == 150]
+	xchg esi, eax 			; overflow ah (70 * 150) % 256 == 4
 	jge $+5					; jump into operand of lidt
 	lidt [ebx+0xd282f999]	; sign bit of eax is not set, therefore edx is set to 0 with cdq (0x99)
 							; CF is unset now so we force it to be set with stc (0xf9)
 							; (0x00d282) edx + 0 + CF == 0 + 0 + CF == 1
 	add byte [edi], cl
 	mov dh, 0x1d			; zero extension move 01 into ebx from the lidt opcode
-dd $-10
+dd $-0xa
 	int 0x80				; syscall
-							; XXX the offset here depends on the address above, so refer to this later
 	ret
 
 	push 0xffffd6e8
-	inc dword [ecx+0x41]
+	inc dword [edi*8+eax+0xff514141]
+	xor [ecx+0x326c6ae1], ecx
+	or eax, $-0x42
+	jno $+1
+	
+	rol dword [ebx+0xd6ff6ac6], 0xf ; change offset for esi call
+	pop ds
+
+	lds eax, [ebx+0xe80f2414] ; 0x0a for second return address
+dd 0-0x4f
+	jnb $-0x4f ; jnb instead of jg so that the previous 0xff makes a valid instruction
+	jo $-0x5917fcf1
+db 0xff, 0xff, 0xff
+
 	; double increment ecx to address of byte 0x74, which we can push onto stack
 	; using a dereferenced push r/m8. then we can subtract two from this value
-	; to get 0x72 needed for 'r' in the string.
+	; to get 0x72 needed for 'r' at the end of the string.
+
 
 ; the exit proc will/should be called after the print of '!',
 ; returning a code of 1 for the amount of bytes written, therefore
