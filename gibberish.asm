@@ -14,9 +14,9 @@ _start:
 	jp $+3
 	test dword [eax+0xeb1d2404], 0x01efbe15 ; add onto return address and jump to print
 	rcl dword [eax+0x80900e04], 0xc3
-db 0x0b, 0xf6 ; or dh, dh | we have to write it explicitly
+db 0x0b, 0xf6 				; or esi, esi | we have to write it explicitly
 	jecxz $+0x2e
-db 0x71, 0x79
+	jno $+0x7b
 	int1
 
 	nop dword [eax]
@@ -46,7 +46,7 @@ dd $-0xa
 	inc dword [edi*8+eax+0xff514141] ; double increments ecx, pushes it and the value it points to
 	xor [ecx+0x326c6ae1], ecx
 	or eax, $-0x42
-	jno $+1
+	ja $+1
 	
 	rol dword [ebx+0xd6ff6ac6], 0xf ; change offset for esi call
 	pop ds
@@ -66,37 +66,16 @@ dw 0xffff
 	jbe $-0x41
 	jge $+4
 	ud0 eax, dword [ebx+0xd6ff03d9]
+	lea ebx, dword [esi-0x36]
+	jnbe $+6
+	popcnt ecx, [ecx+esi+0x0c83241c]
+	movsb
+	adc [ebx+0x687f2424], eax
+dd $+0xf
+	cmp ecx, edi
+	jnge $-0x90
+	btr dword [ebx+eax*4+0xd6ff04c1], 0x90
 
-
-; the exit proc will/should be called after the print of '!',
-; returning a code of 1 for the amount of bytes written, therefore
-; eax setup for sys_exit is done, leaving clearing ebx and
-; calling the syscall, though ebx will be 1 so just unset that bit
-	
 ; exit procedure:
 	btc ebx, 0
 	syscall
-
-; index:
-; rul = ruled out
-; pao = pass as operand (implicit 'rul')
-
-; one-byte opcodes:
-; and r/m8, r8  		(20)
-; push edi      		(57) W
-; outs m16/32			(6f) o | pao
-; jb rel8				(72) r | we can get this from `not` opcode using AND 0b01110010
-; fs override   		(64) d
-; and r/m16/32, r16/32 	(21) !
-; or r8, r/m8			(0a) \n
-
-; two-byte opcodes:
-; punpcklqdq xmm, xmm/m128 		(0f 6c)
-; movq mm, mm/m64				(0f 6f)
-; mov r32, cr	  				(0f 20) | rul
-; xorps xmm, xmm/m128			(0f 57)
-; psrld|psrad|pslld xmm, imm8	(0f 72)
-; pcmgtb xmm, mm/m64			(0f 64)
-; mov r32, dr 					(0f 21) | rul
-; undefined						(0f 0a) | jmp over?
-
