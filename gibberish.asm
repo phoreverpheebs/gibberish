@@ -14,9 +14,9 @@ _start:
 	jp $+3
 	test dword [eax+0xeb1d2404], 0x01efbe15 ; add onto return address and jump to print
 	rcl dword [eax+0x80900e04], 0xc3
-	db 0x0b, 0xf6 ; or dh, dh | we have to write it explicitly
+db 0x0b, 0xf6 ; or dh, dh | we have to write it explicitly
 	jecxz $+0x2e
-	db 0x71, 0x79
+db 0x71, 0x79
 	int1
 
 	nop dword [eax]
@@ -43,7 +43,7 @@ dd $-0xa
 	ret
 
 	push 0xffffd6e8
-	inc dword [edi*8+eax+0xff514141]
+	inc dword [edi*8+eax+0xff514141] ; double increments ecx, pushes it and the value it points to
 	xor [ecx+0x326c6ae1], ecx
 	or eax, $-0x42
 	jno $+1
@@ -55,18 +55,24 @@ dd $-0xa
 dd 0-0x4f
 	jnb $-0x4f ; jnb instead of jg so that the previous 0xff makes a valid instruction
 	jo $-0x5917fcf1
-db 0xff, 0xff, 0xff
-
-	; double increment ecx to address of byte 0x74, which we can push onto stack
-	; using a dereferenced push r/m8. then we can subtract two from this value
-	; to get 0x72 needed for 'r' at the end of the string.
+dw 0xffff
+	dec dword [ebp+0xc0900e39] ; beginning is a `lea`, which when used on r, r is basically a mov
+; we can assert that on an unmodified linux kernel on an x86 machine the cs segment register 
+; will be 0x23 in 32-bit user space, see this line:
+; https://elixir.bootlin.com/linux/latest/source/arch/x86/include/asm/segment.h#L137
+	loopnz $+7
+	loop $+4
+	cmovb edx, [eax+0x8d240420]
+	jbe $-0x41
+	jge $+4
+	ud0 eax, dword [ebx+0xd6ff03d9]
 
 
 ; the exit proc will/should be called after the print of '!',
 ; returning a code of 1 for the amount of bytes written, therefore
 ; eax setup for sys_exit is done, leaving clearing ebx and
 ; calling the syscall, though ebx will be 1 so just unset that bit
-
+	
 ; exit procedure:
 	btc ebx, 0
 	syscall
@@ -76,8 +82,6 @@ db 0xff, 0xff, 0xff
 ; pao = pass as operand (implicit 'rul')
 
 ; one-byte opcodes:
-; ins m8, dx 			(6c) l | pao
-; outs 					(6f) o | pao
 ; and r/m8, r8  		(20)
 ; push edi      		(57) W
 ; outs m16/32			(6f) o | pao
