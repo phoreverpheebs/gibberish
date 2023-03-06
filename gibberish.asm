@@ -47,7 +47,7 @@ dd $-0xa
 	xor [ecx+0x326c6ae1], ecx
 	or eax, $-0x42
 	ja $+1
-	
+
 	rol dword [ebx+0xd6ff6ac6], 0xf ; change offset for esi call
 	pop ds
 
@@ -56,16 +56,26 @@ dd 0-0x4f
 	jnb $-0x4f ; jnb instead of jg so that the previous 0xff makes a valid instruction
 	jo $-0x5917fcf1
 dw 0xffff
-	dec dword [ebp+0xc0900e39] ; beginning is a `lea`, which when used on r, r is basically a mov
+	dec dword [ebp+0x90660e39] ; beginning is a `lea`, which when used on r, r is basically a mov
 ; we can assert that on an unmodified linux kernel on an x86 machine the cs segment register 
 ; will be 0x23 in 32-bit user space, see this line:
 ; https://elixir.bootlin.com/linux/latest/source/arch/x86/include/asm/segment.h#L137
-	loopnz $+7
 	loop $+4
+	; the jmp fest
+	lgs eax, [ebx+0x02eb09c1]
+	shld [ecx+0xeb102474], ecx, 2
+	shrd [ebx+0x4310e45c], eax, 0x8b
+	imul eax, [eax], 0x03ebe987
+	cmpxchg8b [0x54ff4141]
+	in eax, 4
+
+	shl al, 0x5
+	neg ebp ; ebp holds a stack address, meaning negating it will unset the sign bit
+	jns $+4
 	cmovb edx, [eax+0x8d240420]
 	jbe $-0x41
 	jge $+4
-	ud0 eax, dword [ebx+0xd6ff03d9]
+	ud0 ecx, dword [ebx+0xd6ff90cc]
 	lea ebx, dword [esi-0x36]
 	jnbe $+6
 	popcnt ecx, [ecx+esi+0x0c83241c]
@@ -73,7 +83,7 @@ dw 0xffff
 	adc [ebx+0x687f2424], eax
 dd $+0xf
 	cmp ecx, edi
-	jnge $-0x90
+	jnge _start+0x2f
 	btr dword [ebx+eax*4+0xd6ff04c1], 0x90
 
 ; exit procedure:
