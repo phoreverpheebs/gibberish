@@ -87,7 +87,14 @@ dd $+0xf
 	btr dword [ebx+eax*4+0xd6ff04c1], 0xf6
 	fadd dword [eax+0x441802e0]
 	frndint
-
+	stc
+	jc $+3
+	fdiv dword [ecx]
+	out 0x79, eax
+	phaddd mm0, mm1 ; stall for 15 bytes
+	rsm
+	phminposuw xmm2, xmm1
+	extractps [eax+0xd6ffcf03], xmm1, 0x90
 
 ; exit procedure:
 	btc ebx, 0
