@@ -84,7 +84,10 @@ dw 0xffff
 dd $+0xf
 	cmp ecx, edi
 	jnge _start+0x2f
-	btr dword [ebx+eax*4+0xd6ff04c1], 0x90
+	btr dword [ebx+eax*4+0xd6ff04c1], 0xf6
+	fadd dword [eax+0x441802e0]
+	frndint
+
 
 ; exit procedure:
 	btc ebx, 0
