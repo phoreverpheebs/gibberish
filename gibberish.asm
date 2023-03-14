@@ -92,9 +92,13 @@ dd $+0xf
 	fdiv dword [ecx]
 	out 0x79, eax
 	phaddd mm0, mm1 ; stall for 15 bytes
-	rsm
 	phminposuw xmm2, xmm1
-	extractps [eax+0xd6ffcf03], xmm1, 0x90
+	rsm
+	extractps [eax+0x0678cf03], xmm1, 0xc3
+	insertps xmm2, [eax+0x75d6ff90], 1
+	xadd edi, eax
+	les eax, [eax+0x057a02c1]
+	pblendw xmm2, [eax+0xd6ff3909], 0x90
 
 ; exit procedure:
 	btc ebx, 0
