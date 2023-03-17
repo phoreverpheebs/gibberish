@@ -3,7 +3,9 @@
 `gibberish` is a **simple** 'Hello, World!' program written in x86 assembly, which
 doesn't reuse instructions and barely makes any sense. We have branched off a version
 of `gibberish`, which defines the 'Hello, World!' string directly in the source and 
-compiled binary instead of scattering its bytes all over, before and during execution
+compiled binary instead of scattering its bytes all over, before and during execution.
+This branch also spends more time explaining the process of its creation and techniques
+we can use to offset execution to keep the program's doings secret.
 ([The defined-string branch](https://github.com/phoreverpheebs/gibberish/tree/defined-string)).
 
 This repository is to demonstrate ways we can obfuscate a binary from being
