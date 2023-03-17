@@ -99,6 +99,8 @@ dd $+0xf
 	extractps [eax+0x0678cf03], xmm1, 0xc3
 	insertps xmm2, [eax+0x75d6ff90], 1
 	xadd edi, eax
+
+	; i'll add some comments to this block of whatever-this-is soon
 	les eax, [eax+0x057a02c1]
 	pblendw xmm2, [eax+0x04eb3909], 0xd9
 	bsr esi, [edi*8+edi+0x0172f9d6]
