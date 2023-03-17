@@ -11,3 +11,12 @@ and decrement previous values to get the character we need.
 We also demonstrate how certain actions may be performed in redundant ways, so
 as to confuse the average reverse engineer (e.g. the print procedure uses four
 total instructions to zero the `eax` register).
+
+## The SIGSEGV
+
+`gibberish.asm` (at least on my machine) runs into a segmentation fault about
+50% of the time, which to me raises an interesting question that will lead me
+to look into how memory is laid out at the beginning of a processes execution
+on a standard Linux system. In `gdb`, the memory seems to be allocated in a
+consistent manner, which causes the exception to never occur, though in normal
+execution it seems to be slightly different.
