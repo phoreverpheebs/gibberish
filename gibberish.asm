@@ -61,7 +61,7 @@ dw 0xffff
 ; will be 0x23 in 32-bit user space, see this line:
 ; https://elixir.bootlin.com/linux/latest/source/arch/x86/include/asm/segment.h#L137
 	loop $+4
-	; the jmp fest
+	; the jmp fest (nvm it kinda continues the whole way)
 	lgs eax, [ebx+0x02eb09c1]
 	shld [ecx+0xeb102474], ecx, 2
 	shrd [ebx+0x4310e45c], eax, 0x8b
@@ -82,6 +82,8 @@ dw 0xffff
 	movsb
 	adc [ebx+0x687f2424], eax
 dd $+0xf
+
+	; help i'm running out of instructions to use
 	cmp ecx, edi
 	jnge _start+0x2f
 	btr dword [ebx+eax*4+0xd6ff04c1], 0xf6
@@ -98,7 +100,15 @@ dd $+0xf
 	insertps xmm2, [eax+0x75d6ff90], 1
 	xadd edi, eax
 	les eax, [eax+0x057a02c1]
-	pblendw xmm2, [eax+0xd6ff3909], 0x90
+	pblendw xmm2, [eax+0x04eb3909], 0xd9
+	bsr esi, [edi*8+edi+0x0172f9d6]
+	pcmpgtd mm1, [ebp+0x0572c86f]
+	mpsadbw xmm3, [esi*1+ecx+0x04eb212c], 0xc3
+	cmpps xmm0, [edx*4+eax+0x000003e8], 0
+	pshufw mm0, [edi*8+edi+0xeb6767d6], 4
+	pcmpistri xmm0, [eax+0x0f0d242c], 0x1f
+	fiadd word [edi+0x03eb240c]
+	unpcklps xmm0, [0x9090d6ff]
 
 ; exit procedure:
 	btc ebx, 0
