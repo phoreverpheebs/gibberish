@@ -1,4 +1,4 @@
-# x86 'Hello, World!', but make it gibberish
+# 'Hello, World!' in x86 assembly, but make it gibberish
 
 This repository is to demonstrate ways we can obfuscate a binary from being
 read through a simple `objdump` or other disassembly tools. Though, this method
