@@ -108,7 +108,9 @@ dd $+0xf
 	pshufw mm0, [edi*8+edi+0xeb6767d6], 4
 	pcmpistri xmm0, [eax+0x0f0d242c], 0x1f
 	fiadd word [edi+0x03eb240c]
-	unpcklps xmm0, [0x9090d6ff]
+	unpcklps xmm0, [0x04ebd6ff]
+	cvttps2dq xmm0, [eax*4+edi+0x03eb240c]
+	lss ecx, [eax*8+esi+0xd6ff0a01]
 
 ; exit procedure:
 	btc ebx, 0
