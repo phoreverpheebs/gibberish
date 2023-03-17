@@ -1,5 +1,11 @@
 # 'Hello, World!' in x86 assembly, but make it gibberish
 
+`gibberish` is a **simple** 'Hello, World!' program written in x86 assembly, which
+doesn't reuse instructions and barely makes any sense. We have branched off a version
+of `gibberish`, which defines the 'Hello, World!' string directly in the source and 
+compiled binary instead of scattering its bytes all over, before and during execution
+([The defined-string branch](https://github.com/phoreverpheebs/gibberish/tree/defined-string).
+
 This repository is to demonstrate ways we can obfuscate a binary from being
 read through a simple `objdump` or other disassembly tools. Though, this method
 is not perfect, as simply tracking all `call` and `jmp` instructions could lead
