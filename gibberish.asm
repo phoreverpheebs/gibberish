@@ -101,17 +101,21 @@ dd $+0xf
 	rsm
 	extractps [eax+0x0678cf03], xmm1, 0xc3
 	insertps xmm2, [eax+0x75d6ff90], 1
-	xadd edi, eax
 
-	; i'll add some comments to this block of whatever-this-is soon
-	les eax, [eax+0x05eb02c1]
+	xadd edi, eax 	; intentionally over-rotate edi to 0x40 (over-rotation so that the value
+					; is an opcode we haven't used yet
+	les eax, [eax+0x05eb02c1] ; adjust address pointed to by ecx and set the bit [ecx][6]
 	pblendw xmm2, [eax+0x04eb3909], 0xd9
-	bsr esi, [edi*8+edi+0x0172f9d6]
-	pcmpgtd mm1, [ebp+0x0572c86f]
+	bsr esi, [edi*8+edi+0x0172f9d6] ; doing some work and hopping to the next instruction's operand
+	pcmpgtd mm1, [ebp+0x0572c86f] 	; we want to flip the bit at [ecx][3], so we load 0x8 into ebp
+									; and xor ebp into [ecx]
 	mpsadbw xmm3, [esi*1+ecx+0x04eb212c], 0xc3
-	cmpps xmm0, [edx*4+eax+0x000003e8], 0
+	cmpps xmm0, [edx*4+eax+0x000003e8], 0 ; the sib byte disp32 can't be fit into 8 bits, since nasm
+										  ; wouldn't let us have the rel32 operand for a call
+										  ; therefore we choose an instruction that ends with an
+										  ; imm8 third operand
 	pshufw mm0, [edi*8+edi+0xeb6767d6], 4
-	pcmpistri xmm0, [eax+0x0f0d242c], 0x1f
+	pcmpistri xmm0, [eax+0x0f0d242c], 0x1f 	; setup for byte [ecx] == '!' (at address _start+344)
 	fiadd word [edi+0x03eb240c]
 	unpcklps xmm0, [0x04ebd6ff]
 	cvttps2dq xmm0, [eax*4+edi+0x03eb240c]
