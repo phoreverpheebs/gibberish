@@ -20,11 +20,27 @@ We also demonstrate how certain actions may be performed in redundant ways, so
 as to confuse the average reverse engineer (e.g. the print procedure uses four
 total instructions to zero the `eax` register).
 
-## The SIGSEGV
+## Exposed strings
 
-`gibberish.asm` (at least on my machine) runs into a segmentation fault about
-50% of the time, which to me raises an interesting question that will lead me
-to look into how memory is laid out at the beginning of a processes execution
-on a standard Linux system. In `gdb`, the memory seems to be allocated in a
-consistent manner, which causes the exception to never occur, though in normal
-execution it seems to be slightly different.
+```
+$ strings gibberish
+gibberish.asm
+__bss_start
+_edata
+_end
+.symtab
+.strtab
+.shstrtab
+.text
+```
+
+The only exposed strings are symbols, which may simply be stripped.
+
+## Potential segmentation faults
+
+The instruction at offset _\_start+0xb9_ negates the _ebp_ register, which at the time
+holds a stack address. The assumption here is that the stack is allocated in a higher
+section of the address space, where the sign bit ends up being set. However, as pointed
+out by [fortyonepercent on Hacker News](https://news.ycombinator.com/item?id=35204432)
+certain emulations with [qemu](https://github.com/qemu/qemu) may allocate the stack
+to a lower address space causing the `jns` after the negation to be ignored.

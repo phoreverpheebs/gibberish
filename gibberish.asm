@@ -104,7 +104,7 @@ dd $+0xf
 	xadd edi, eax
 
 	; i'll add some comments to this block of whatever-this-is soon
-	les eax, [eax+0x057a02c1]
+	les eax, [eax+0x05eb02c1]
 	pblendw xmm2, [eax+0x04eb3909], 0xd9
 	bsr esi, [edi*8+edi+0x0172f9d6]
 	pcmpgtd mm1, [ebp+0x0572c86f]
