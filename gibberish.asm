@@ -74,7 +74,10 @@ dw 0xffff
 	jns $+4
 	cmovb edx, [eax+0x8d240420]
 	jbe $-0x41
-	jge $+4
+	aam 0x20
+	ror ax, 1
+	mul bp
+	jle $+4
 	ud0 ecx, dword [ebx+0xd6ff90cc]
 	lea ebx, dword [esi-0x36]
 	jnbe $+6
