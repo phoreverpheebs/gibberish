@@ -1,10 +1,16 @@
-FILENAME = gibberish
+EXE = gibberish
 
-gibberish: ${FILENAME}.o
-	ld --nmagic -melf_i386 ${FILENAME}.o -o ${FILENAME}
+AS=nasm
+LDFLAGS=--nmagic -melf_i386
+ASFLAGS=-felf32
 
-gibberish.o: ${FILENAME}.asm
-	nasm -felf32 ${FILENAME}.asm -o ${FILENAME}.o
+all: $(EXE)
+
+$(EXE): $(EXE).o
+	$(LD) $(LDFLAGS) $< -o $@
+
+%.o: %.asm
+	$(AS) $(ASFLAGS) $< -o $@
 
 .PHONY: clean
 clean:
